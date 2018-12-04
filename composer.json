@@ -1,0 +1,28 @@
+{
+  "name": "aminkt/yii2-oauth2",
+  "description": "Usefull package to add some class to yii2-oauth2 extention.",
+  "type": "library",
+  "keywords": [
+    "yii2",
+    "oauth2",
+    "library",
+    "jwt",
+    "aminkt"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Amin Keshavarz",
+      "email": "ak_1596@yahoo.com"
+    }
+  ],
+  "require": {
+    "yiisoft/yii2": "~2.0.0",
+    "firebase/php-jwt": "~5.0.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "aminkt\\yii2\\oauth2\\": "src"
+    }
+  }
+}
