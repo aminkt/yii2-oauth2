@@ -1,6 +1,6 @@
 <?php
 
-namespace aminkt\yii2\oauth2\oauth\jwt;
+namespace aminkt\yii2\oauth2\jwt;
 
 
 use yii\base\InvalidArgumentException;
