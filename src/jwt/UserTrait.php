@@ -3,8 +3,12 @@
 namespace aminkt\yii2\oauth2\jwt;
 
 
-use yii\base\InvalidArgumentException;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
+use yii\base\InvalidArgumentException;
+use yii\web\UnauthorizedHttpException;
+use yii\web\ForbiddenHttpException;
 
 trait UserTrait
 {
@@ -13,17 +17,26 @@ trait UserTrait
      *
      * @param mixed $token the token to be looked for
      *
-     * @param mixed $type the type of the token. The value of this parameter depends on the implementation.
-     * For example, [[\yii\filters\auth\HttpBearerAuth]] will set this parameter to be `yii\filters\auth\HttpBearerAuth`.
+     * @param mixed $type  the type of the token. The value of this parameter depends on the implementation.
+     *                     For example, [[\yii\filters\auth\HttpBearerAuth]] will set this parameter to be
+     *                     `yii\filters\auth\HttpBearerAuth`.
      *
      * @return IdentityInterface the identity object that matches the given token.
      * Null should be returned if such an identity cannot be found
      * or the identity is not in an active state (disabled, deleted, etc.)
+     *
+     * @throws \yii\web\UnauthorizedHttpException   When token is expired.
      */
     public static function findIdentityByAccessToken($token, $type = null)
     {
         if ($type == 'yii\filters\auth\HttpBearerAuth') {
-            $payload = (array)JWT::decode($token, self::getEncryptKey(), [self::getEncryptAlgorithm()]);
+            try {
+                $payload = (array)JWT::decode($token, self::getEncryptKey(), [self::getEncryptAlgorithm()]);
+            } catch (ExpiredException $exception) {
+                throw new UnauthorizedHttpException($exception->getMessage(), $exception->getCode(), $exception);
+            } catch (SignatureInvalidException $exception) {
+                throw new ForbiddenHttpException($exception->getMessage(), $exception->getCode(), $exception);
+            }
             $id = $payload['data']->userId;
             return self::findOne($id);
         }
@@ -81,7 +94,7 @@ trait UserTrait
     {
         $payload = [
             'iat' => time(),         // Issued at: time when the token was generated
-            'jti' => $this->getId().'_'.time(),          // Json Token Id: an unique identifier for the token
+            'jti' => $this->getId() . '_' . time(),          // Json Token Id: an unique identifier for the token
             'iss' => \Yii::$app->getUrlManager()->getHostInfo(),       // Issuer
             'nbf' => time(),        // Not before
             'exp' => time() + 3600 * 2,           // Expire
