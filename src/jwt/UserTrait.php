@@ -6,6 +6,8 @@ namespace aminkt\yii2\oauth2\jwt;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
+use \UnexpectedValueException;
 use yii\base\InvalidArgumentException;
 use yii\web\UnauthorizedHttpException;
 use yii\web\ForbiddenHttpException;
@@ -36,6 +38,8 @@ trait UserTrait
                 throw new UnauthorizedHttpException($exception->getMessage(), $exception->getCode(), $exception);
             } catch (SignatureInvalidException $exception) {
                 throw new ForbiddenHttpException($exception->getMessage(), $exception->getCode(), $exception);
+            } catch (UnexpectedValueException $exception) {
+                throw new AccessDeniedException($exception->getMessage(), $exception->getCode(), $exception);
             }
             $id = $payload['data']->userId;
             return self::findOne($id);
