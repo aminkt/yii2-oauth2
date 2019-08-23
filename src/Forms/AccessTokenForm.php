@@ -1,10 +1,10 @@
 <?php
 
-namespace aminkt\yii2\oauth2\models\forms;
+namespace Aminkt\Yii2\Oauth2\Forms;
 
 use aminkt\yii2\oauth2\interfaces\RefreshTokenModelInterface;
 use aminkt\yii2\oauth2\interfaces\UserModelInterface;
-use aminkt\yii2\oauth2\Module;
+use Aminkt\Yii2\Oauth2\Oauth2;
 use yii\base\Model;
 
 /**
@@ -32,7 +32,7 @@ class AccessTokenForm extends Model
      */
     public function rules()
     {
-        $userModelClass = Module::getInstance()->userModelClass;
+        $userModelClass = Oauth2::getInstance()->userModelClass;
         return [
             // username and password are both required
             [['refresh_token', 'user_id'], 'required'],

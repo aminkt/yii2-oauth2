@@ -1,38 +1,39 @@
 <?php
 
-namespace aminkt\yii2\oauth2\interfaces;
+namespace Aminkt\Yii2\Oauth2\Interfaces;
+
+use DateTime;
 
 /**
  * Interface RefreshTokenModelInterface
  *
- * @package rest\models
- *
  * @author  Amin Keshavarz <ak_1596@yahoo.com>
+ * @package Aminkt\Yii2\Oauth2\Interfaces
  */
 interface RefreshTokenModelInterface
 {
     /**
      * Generate new refresh token.
-     * This methdo do not save generated token in db. user save method to save this.
+     * This method do not save generated token in db. user save method to save this.
      *
-     * @param integer     $userId User id who we want generate token for him.
-     * @param string|null $ip     Client ip address. If not setted get from request header.
-     * @param array|null  $agent  Agent data. this data will hasht and store in database.
+     * @param int      $userId User id who we want generate token for him.
+     * @param string|null $ip     Client ip address. If not prepared get from request header.
+     * @param array|null  $agent  Agent data. this data will hash and store in database.
      *
-     * @return mixed
+     * @return string Refresh token.
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public static function generate($userId, $ip = null, $agent = null);
+    public static function generate(int $userId, ?string $ip = null, ?array $agent = null): string;
 
     /**
      * Generate and set token.
      *
-     * @return static
+     * @return RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function generateToken();
+    public function generateToken(): self;
 
     /**
      * Return related user model.
@@ -41,82 +42,82 @@ interface RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getUser();
+    public function getUser(): UserModelInterface;
 
     /**
      * Return related user id.
      *
-     * @return mixed
+     * @return int
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getUserId();
+    public function getUserId(): int;
 
     /**
      * Return current token id if generated and saved into database.
      *
-     * @return mixed
+     * @return int
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getId();
+    public function getId(): int;
 
     /**
      * Set user id.
      *
-     * @param $id
+     * @param int $id
      *
-     * @return static
+     * @return RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function setUserId($id);
+    public function setUserId(int $id): self;
 
     /**
      * Return agent hash.
      *
-     * @return string
+     * @return string|null
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getAgentHash();
+    public function getAgent(): ?string;
 
     /**
      * Return expire time
      *
-     * @return string
+     * @return DateTime
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getExpireTime();
+    public function getExpireTime(): DateTime;
 
     /**
      * Return update time.
      *
-     * @return mixed
+     * @return DateTime
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getUpdateTime();
+    public function getUpdateTime(): DateTime;
 
     /**
      * Return create time.
      *
-     * @return mixed
+     * @return DateTime
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
 
-    public function getCreateTime();
+    public function getCreateTime(): DateTime;
 
     /**
-     * Retrurn saved refresh token.
+     * Return saved refresh token.
      *
      * @return string
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getToken();
+    public function getToken(): string;
 
     /**
      * Return user ip relaetd to this refresh token.
@@ -125,38 +126,40 @@ interface RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getIp();
+    public function getIp(): string;
 
     /**
      * Set client ip.
      *
      * @param string $ip
      *
-     * @return static
+     * @return RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function setIp($ip);
+    public function setIp(string $ip): self;
 
     /**
      * Compare that entered agent is valid or not.
+     *
+     * @param array $agent
      *
      * @return boolean
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function isAgentValid($agent);
+    public function isAgentValid(array $agent): bool;
 
     /**
      * Set agent hash.
      *
-     * @param array $agent
+     * @param string $agent
      *
-     * @return static
+     * @return RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function setAggent($agent);
+    public function setAgent(string $agent): self;
 
     /**
      * Check if current refresh token is valid or not.
@@ -165,5 +168,5 @@ interface RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function isTokenValid();
+    public function isTokenValid(): bool;
 }

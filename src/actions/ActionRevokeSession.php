@@ -1,9 +1,9 @@
 <?php
 
-namespace aminkt\yii2\oauth2\actions;
+namespace Aminkt\Yii2\Oauth2\Actions;
 
-
-use aminkt\yii2\oauth2\models\forms\AccessTokenForm;
+use Aminkt\Yii2\Oauth2\Forms\AccessTokenForm;
+use Yii;
 use yii\rest\Action;
 use yii\web\BadRequestHttpException;
 
@@ -16,7 +16,7 @@ use yii\web\BadRequestHttpException;
  *
  * @author  Amin Keshavarz <ak_1596@yahoo.com>
  */
-class ActionRevokeSession extends \yii\base\Action
+class ActionRevokeSession extends Action
 {
     /**
      * Revoke refresh token.
@@ -30,15 +30,15 @@ class ActionRevokeSession extends \yii\base\Action
     {
         $form = new AccessTokenForm();
 
-        if($form->load(\Yii::$app->getRequest()->post(), '')) {
+        if ($form->load(Yii::$app->getRequest()->post(), '')) {
             if ($form->revokeToken()) {
                 return ['message' => 'Your token revoked successfully.'];
             } else {
-                \Yii::$app->response->setStatusCode(400);
+                Yii::$app->response->setStatusCode(400);
                 return $form->getErrors();
             }
         }
 
-        throw new BadRequestHttpException("Plase send your refresh_token and user_id body of your post request");
+        throw new BadRequestHttpException('Please send your refresh_token and user_id body of your post request');
     }
 }

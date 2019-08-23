@@ -22,7 +22,7 @@
   },
   "autoload": {
     "psr-4": {
-      "aminkt\\yii2\\oauth2\\": "src"
+      "Aminkt\\Yii2\\Oauth2\\": "src"
     }
   }
 }
