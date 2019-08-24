@@ -5,18 +5,17 @@ namespace Aminkt\Yii2\Oauth2\Forms;
 use aminkt\yii2\oauth2\interfaces\RefreshTokenModelInterface;
 use aminkt\yii2\oauth2\interfaces\UserModelInterface;
 use Aminkt\Yii2\Oauth2\Oauth2;
-use yii\base\Model;
 
 /**
  * class AccessTokenForm
- * Use this form to generate new access token for client.
+ * Use this form to generate new access token for client by refresh token.
  *
  * @author Amin Keshavarz <ak_1596@yahoo.com>
  *
  * @property null|UserModelInterface         $user
  * @property null|RefreshTokenModelInterface $token
  */
-class AccessTokenForm extends Model
+class RefreshTokenGrantForm extends GrantForm
 {
     public $refresh_token;
     public $user_id;
@@ -32,27 +31,24 @@ class AccessTokenForm extends Model
      */
     public function rules()
     {
-        $userModelClass = Oauth2::getInstance()->userModelClass;
-        return [
+        return array_merge(parent::rules(), [
             // username and password are both required
             [['refresh_token', 'user_id'], 'required'],
             [['refresh_token', 'user_id'], 'trim'],
-            [['user_id'], 'exist', 'targetClass' => $userModelClass, 'targetAttribute' => ['user_id' => 'id']],
             [['refresh_token'], 'validateToken']
-        ];
+        ]);
     }
 
     /**
-     * Validates the password.
-     * This method serves as the inline validation for password.
+     * Validates the token.
+     * This method serves as the inline validation for token.
      *
      * @param string $attribute the attribute currently being validated
-     * @param array  $params    the additional name-value pairs given in the rule
      */
-    public function validateToken($attribute, $params)
+    public function validateToken($attribute)
     {
         if (!$this->hasErrors()) {
-            $token = $this->getToken();
+            $token = $this->getRefreshToken();
             if (!$token || !$token->isTokenValid()) {
                 $this->addError($attribute, 'Refresh token is not valid.');
             } else {
@@ -69,39 +65,15 @@ class AccessTokenForm extends Model
      *
      * @return RefreshTokenModelInterface|null
      */
-    protected function getToken()
+    protected function getRefreshToken(): ?RefreshTokenModelInterface
     {
         if ($this->_token === null) {
             /** @var RefreshTokenModelInterface $model */
-            $model = Module::getInstance()->refreshTokenModelClass;
-            $this->_token = $model::findOne([
-                'user_id' => $this->user_id,
-                'token' => $this->refresh_token
-            ]);
+            $model = Oauth2::getInstance()->refreshTokenModelClass;
+            $this->_token = $model::findRefreshToken($this->user_id, $this->refresh_token);
         }
 
         return $this->_token;
-    }
-
-    /**
-     * Generate new access token.
-     *
-     * @return bool|array whether the user is logged in successfully
-     */
-    public function generateToken()
-    {
-        if ($this->validate()) {
-            $payload = $this->getUser()->payloadCreator();
-            $token = $this->getUser()->generateToken($payload);
-            return [
-                "token_type" => "Bearer",
-                "access_token" => $token,
-                "expire_in" => $payload['exp'],
-                "refresh_token" => $this->getToken()->token
-            ];
-        }
-
-        return false;
     }
 
     /**
@@ -111,10 +83,12 @@ class AccessTokenForm extends Model
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function revokeToken(){
+    public function revokeToken(): bool
+    {
         if ($this->validate()) {
-            $token = $this->getToken();
-            return $token->delete();
+            $token = $this->getRefreshToken();
+            $token->revokeToken();
+            return true;
         }
 
         return false;
@@ -127,12 +101,35 @@ class AccessTokenForm extends Model
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    protected function getUser()
+    protected function getUser(): ?UserModelInterface
     {
-        if ($this->_user === null and $token = $this->getToken()) {
+        if ($this->_user === null and $token = $this->getRefreshToken()) {
             $this->_user = $token->getUser();
         }
 
         return $this->_user;
+    }
+
+    /**
+     * Generate and return access token.
+     *
+     * @return null|array
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
+    public function getAccessToken(): ?array
+    {
+        if ($this->validate()) {
+            $refreshToken = $this->getRefreshToken();
+            $accessToken = $this->getUser()->generateAccessToken();
+            return [
+                'token_type' => 'Bearer',
+                'access_token' => $accessToken->getJwtToken(),
+                'expire_in' => $accessToken->getJwtPayload()['exp'],
+                'refresh_token' => $refreshToken->getToken()
+            ];
+        }
+
+        return null;
     }
 }

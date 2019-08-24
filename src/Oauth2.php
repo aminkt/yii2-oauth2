@@ -2,16 +2,11 @@
 
 namespace Aminkt\Yii2\Oauth2;
 
-use Firebase\JWT\ExpiredException;
-use Firebase\JWT\JWT;
-use Firebase\JWT\SignatureInvalidException;
+use Aminkt\Yii2\Oauth2\Interfaces\UserModelInterface;
+use Aminkt\Yii2\Oauth2\Lib\JwtToken;
 use RuntimeException;
-use UnexpectedValueException;
 use Yii;
 use yii\base\Component;
-use yii\base\InvalidArgumentException;
-use yii\web\ForbiddenHttpException;
-use yii\web\UnauthorizedHttpException;
 
 /**
  * Class Module
@@ -19,6 +14,9 @@ use yii\web\UnauthorizedHttpException;
  *
  * @author  Amin Keshavarz <ak_1596@yahoo.com>
  * @package Aminkt\Yii2\Oauth2
+ *
+ * @property string $jwtDecryptKey
+ * @property string $jwtEncryptKey
  */
 class Oauth2 extends Component
 {
@@ -29,6 +27,8 @@ class Oauth2 extends Component
     public $userModelClass = null;
     /** @var string|null    User refresh token class name. */
     public $refreshTokenModelClass = null;
+    /** @var string|null    Client class name. */
+    public $clientModelClass = null;
     /** @var string Algorithm that to use encrypt and decrypt token. */
     public $encryptAlgorithm = self::ENCRYPT_ALG_HS256;
     /** @var int    Second to expire refresh token. */
@@ -41,40 +41,23 @@ class Oauth2 extends Component
     public $rsPublicKeyPath;
     /** @var string|null */
     public $rsPrivateKeyPath;
+    /** @var callable|array */
+    public $payloadData;
+
+    private static $_instance;
 
 
     public static function getInstance(): self
     {
+        if (static::$_instance) {
+            return static::$_instance;
+        }
+
         if (!Yii::$container->has(Oauth2::class)) {
             throw new RuntimeException('Oauth2 component not registered in DI');
         }
 
-        return Yii::$container->get(Oauth2::class);
-    }
-
-    /**
-     * Decrypt jwt token.
-     *
-     * @param string $token
-     *
-     * @return array
-     *
-     * @author Amin Keshavarz <ak_1596@yahoo.com>
-     * @throws \yii\web\ForbiddenHttpException
-     * @throws \yii\web\UnauthorizedHttpException
-     */
-    public function decryptJwtToken(string $token): array
-    {
-        try {
-            $payload = (array) JWT::decode($token, $this->getJwtDecryptKey(), [$this->encryptAlgorithm]);
-            return $payload;
-        } catch (ExpiredException $exception) {
-            throw new UnauthorizedHttpException($exception->getMessage(), $exception->getCode(), $exception);
-        } catch (SignatureInvalidException $exception) {
-            throw new ForbiddenHttpException($exception->getMessage(), $exception->getCode(), $exception);
-        } catch (UnexpectedValueException $exception) {
-            throw new ForbiddenHttpException($exception->getMessage(), $exception->getCode(), $exception);
-        }
+        return static::$_instance = Yii::$container->get(Oauth2::class);
     }
 
     /**
@@ -84,7 +67,7 @@ class Oauth2 extends Component
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    private function getJwtDecryptKey(): string
+    public function getJwtDecryptKey(): string
     {
         switch ($this->encryptAlgorithm) {
             case self::ENCRYPT_ALG_HS256:
@@ -108,7 +91,7 @@ class Oauth2 extends Component
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    private function getJwtEncryptKey(): string
+    public function getJwtEncryptKey(): string
     {
         switch ($this->encryptAlgorithm) {
             case self::ENCRYPT_ALG_HS256:
@@ -126,22 +109,34 @@ class Oauth2 extends Component
     }
 
     /**
-     * Generate jwt token.
+     * Generate Jwt token.
      *
-     * @param array $payload
+     * @param \Aminkt\Yii2\Oauth2\Interfaces\UserModelInterface $userModel
+     * @param array                                             $payload
      *
-     * @return string
+     * @return \Aminkt\Yii2\Oauth2\Lib\JwtToken
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
+     * @throws \yii\base\InvalidConfigException
      */
-    public function generateJwtToken(array $payload)
+    public function generateJwtToken(UserModelInterface $userModel, array $payload = []): JwtToken
     {
-        if (!isset($payload['iat']) or
-            !isset($payload['data']) or
-            !isset($payload['data']['userId'])) {
-            throw new InvalidArgumentException('Payload is not valid.');
-        }
+        return new JwtToken($userModel, $payload);
+    }
 
-        return JWT::encode($payload, $this->getJwtEncryptKey(), $this->encryptAlgorithm);
+    /**
+     * Decrypt jwt token.
+     *
+     * @param string $token
+     *
+     * @return array
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     * @throws \yii\web\ForbiddenHttpException
+     * @throws \yii\web\UnauthorizedHttpException
+     */
+    public function decryptJwtToken(string $token): array
+    {
+        return JwtToken::decryptJwtToken($token);
     }
 }

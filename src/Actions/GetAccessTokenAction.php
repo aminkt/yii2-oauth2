@@ -2,20 +2,20 @@
 
 namespace Aminkt\Yii2\Oauth2\Actions;
 
-use Aminkt\Yii2\Oauth2\Forms\AccessTokenForm;
+use Aminkt\Yii2\Oauth2\Forms\GrantFormFactory;
 use Yii;
 use yii\rest\Action;
 use yii\web\BadRequestHttpException;
 
 /**
- * Class ActionGetAccessTokenByRefreshToken
- * This action will help you to get new access_token based your refresh token and user_id.
+ * Class GetAccessTokenAction
+ * This action will help you to get new access_token based your grant_type.
  *
- * @package aminkt\yii2\oauth2\actions
+ * @package aminkt\yii2\oauth2\Actions
  *
  * @author  Amin Keshavarz <ak_1596@yahoo.com>
  */
-class ActionGetAccessTokenByRefreshToken extends Action
+class GetAccessTokenAction extends Action
 {
     /**
      * Return token if valid or not show error messages.
@@ -27,17 +27,17 @@ class ActionGetAccessTokenByRefreshToken extends Action
      */
     public function run()
     {
-        $form = new AccessTokenForm();
+        $form = new GrantFormFactory();
 
         if ($form->load(Yii::$app->getRequest()->post(), '')) {
-            if ($token = $form->generateToken()) {
+            if ($grantForm = $form->getForm() and $token = $grantForm->getAccessToken()) {
                 return $token;
             } else {
                 Yii::$app->response->setStatusCode(400);
-                return $form->getErrors();
+                return array_merge($form->getErrors(), $grantForm->getErrors());
             }
         }
 
-        throw new BadRequestHttpException('Please send your refresh_token and user_id body of your post request');
+        throw new BadRequestHttpException();
     }
 }

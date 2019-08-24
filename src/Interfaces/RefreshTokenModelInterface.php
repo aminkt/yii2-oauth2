@@ -169,4 +169,25 @@ interface RefreshTokenModelInterface
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
     public function isTokenValid(): bool;
+
+    /**
+     * Revoke refresh token.
+     *
+     * @return void
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
+    public function revokeToken(): void;
+
+    /**
+     * Find refresh token.
+     *
+     * @param int    $userId
+     * @param string $refreshToken
+     *
+     * @return \Aminkt\Yii2\Oauth2\Interfaces\RefreshTokenModelInterface
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
+    public static function findRefreshToken(int $userId, string $refreshToken): self;
 }
