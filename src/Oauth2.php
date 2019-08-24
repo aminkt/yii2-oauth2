@@ -41,8 +41,6 @@ class Oauth2 extends Component
     public $rsPublicKeyPath;
     /** @var string|null */
     public $rsPrivateKeyPath;
-    /** @var callable|array */
-    public $payloadData;
 
     private static $_instance;
 
