@@ -3,7 +3,9 @@
 
 namespace Aminkt\Yii2\Oauth2\Interfaces;
 
-use Aminkt\Yii2\Oauth2\Lib\JwtToken;/**
+use Aminkt\Yii2\Oauth2\Lib\JwtToken;
+
+/**
  * Interface UserModelInterface
  * You should implement this interface in your user model.
  *
@@ -16,11 +18,11 @@ interface UserModelInterface
     /**
      * Return user id.
      *
-     * @return int
+     * @return int|string
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function getId(): int;
+    public function getId();
 
     /**
      * Generate a new refresh token and return it.
@@ -49,7 +51,7 @@ interface UserModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public static function findUserByUsername(string $username): ?self;
+    public static function findUserByUsername(string $username): ?UserModelInterface;
 
     /**
      * Validate password.
@@ -60,5 +62,5 @@ interface UserModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function validatePassword($password): bool;
+    public function validatePassword(string $password): bool;
 }
