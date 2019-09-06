@@ -53,7 +53,7 @@ interface UserModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public static function findUserByUsername(string $username): ?self;
+    public static function findUserByUsername(string $username): ?UserModelInterface;
 
     /**
      * Validate password.
