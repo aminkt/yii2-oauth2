@@ -1,9 +1,11 @@
 <?php
-
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Interfaces;
 
-use Aminkt\Yii2\Oauth2\Lib\JwtToken;/**
+use Aminkt\Yii2\Oauth2\Lib\JwtToken;
+
+/**
  * Interface UserModelInterface
  * You should implement this interface in your user model.
  *
@@ -25,11 +27,13 @@ interface UserModelInterface
     /**
      * Generate a new refresh token and return it.
      *
+     * @param \Aminkt\Yii2\Oauth2\Interfaces\ClientModelInterface|null $client
+     *
      * @return \aminkt\yii2\oauth2\interfaces\RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function generateRefreshToken(): RefreshTokenModelInterface;
+    public function generateRefreshToken(?ClientModelInterface $client): RefreshTokenModelInterface;
 
     /**
      * Generate new access token.
@@ -60,5 +64,16 @@ interface UserModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public function validatePassword($password): bool;
+    public function validatePassword(string $password): bool;
+
+    /**
+     * Return user entity by id.
+     *
+     * @param mixed $id
+     *
+     * @return mixed
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
+    public static function findUserEntityById($id);
 }

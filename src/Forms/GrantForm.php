@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Forms;
 
@@ -16,7 +17,7 @@ use yii\base\Model;
  *
  * @property null|UserModelInterface                             $user
  * @property null|array                                          $accessToken
- * @property \Aminkt\Yii2\Oauth2\Interfaces\ClientModelInterface $client
+ * @property ClientModelInterface $client
  * @property null|RefreshTokenModelInterface                     $token
  */
 abstract class GrantForm extends Model
@@ -33,11 +34,12 @@ abstract class GrantForm extends Model
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['grant_type', 'client_id', 'client_secret'], 'required'],
             [['client_id', 'client_secret', 'grant_type'], 'trim'],
+            [['client_secret', 'grant_type'], 'string'],
             [['scope'], 'each', 'rule' => ['string']],
             [['client_secret'], 'validateClientSecret'],
         ];

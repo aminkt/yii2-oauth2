@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Interfaces;
 
@@ -31,5 +32,23 @@ interface ClientModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
-    public static function findClient($clientId): ?self;
+    public static function findClient($clientId): ?ClientModelInterface;
+
+    /**
+     * Return client id.
+     *
+     * @return mixed
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
+    public function getId();
+
+    /**
+     * Return client description to generate refresh token.
+     *
+     * @return string
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
+    public function getClientDescription(): string;
 }

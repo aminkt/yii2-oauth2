@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Forms;
 
@@ -9,6 +10,11 @@ use Aminkt\Yii2\Oauth2\Oauth2;
 /**
  * class UserCredentialsGrantForm
  * Use this form to generate new access token for client by username and password.
+ *
+ * @property string $grant_type
+ * @property string $scope
+ * @property string $client_id
+ * @property string $client_secret
  *
  * @author Amin Keshavarz <ak_1596@yahoo.com>
  *
@@ -26,7 +32,7 @@ class UserCredentialsGrantForm extends GrantForm
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return array_merge(parent::rules(), [
             // username and password are both required
@@ -65,8 +71,7 @@ class UserCredentialsGrantForm extends GrantForm
 
         if ($user) {
             $accessToken = $user->generateAccessToken();
-            $refreshToken = $user->generateRefreshToken();
-
+            $refreshToken = $user->generateRefreshToken($this->client);
             return [
                 'token_type' => 'Bearer',
                 'expires_in' => $accessToken->getJwtPayload()['exp'],

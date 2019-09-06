@@ -3,20 +3,20 @@ declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Actions;
 
-use Aminkt\Yii2\Oauth2\Forms\GrantFormFactory;
+use Aminkt\Yii2\Oauth2\Forms\RefreshTokenGrantForm;
 use Yii;
 use yii\base\Action;
 use yii\web\BadRequestHttpException;
 
 /**
  * Class GetAccessTokenAction
- * This action will help you to get new access_token based your grant_type.
+ * This action will help you to revoke old refresh_token based.
  *
  * @package aminkt\yii2\oauth2\Actions
  *
  * @author  Amin Keshavarz <ak_1596@yahoo.com>
  */
-class GetAccessTokenAction extends Action
+class RevokeRefreshTokenAction extends Action
 {
     /**
      * Return token if valid or not show error messages.
@@ -28,14 +28,15 @@ class GetAccessTokenAction extends Action
      */
     public function run()
     {
-        $form = new GrantFormFactory();
+        $form = new RefreshTokenGrantForm();
+        $form->scenario = RefreshTokenGrantForm::SCENARIO_REVOKE_TOKEN;
 
         if ($form->load(Yii::$app->getRequest()->post(), '')) {
-            if ($grantForm = $form->getForm() and $token = $grantForm->getAccessToken()) {
-                return $token;
+            if ($form->revokeToken()) {
+                return ['Access token revoked.'];
             } else {
                 Yii::$app->response->setStatusCode(400);
-                return array_merge($form->getErrors(), $grantForm ? $grantForm->getErrors() : []);
+                return $form->getErrors();
             }
         }
 

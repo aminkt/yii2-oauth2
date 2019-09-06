@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2;
 
@@ -45,17 +46,20 @@ class Oauth2 extends Component
     private static $_instance;
 
 
+    /**
+     * Return an instance of Oauth2 component.
+     *
+     * @return \Aminkt\Yii2\Oauth2\Oauth2
+     *
+     * @author Amin Keshavarz <ak_1596@yahoo.com>
+     */
     public static function getInstance(): self
     {
         if (static::$_instance) {
             return static::$_instance;
         }
 
-        if (!Yii::$container->has(Oauth2::class)) {
-            throw new RuntimeException('Oauth2 component not registered in DI');
-        }
-
-        return static::$_instance = Yii::$container->get(Oauth2::class);
+        return static::$_instance = Yii::$app->get('oauth2');
     }
 
     /**
@@ -99,7 +103,7 @@ class Oauth2 extends Component
                 if (!file_exists($this->rsPrivateKeyPath)) {
                     throw new RuntimeException('Public key file not exist.');
                 }
-                $key = file_get_contents($this->rsPublicKeyPath);
+                $key = file_get_contents($this->rsPrivateKeyPath);
                 return $key;
         }
 

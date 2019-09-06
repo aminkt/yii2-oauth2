@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Forms;
 
@@ -31,7 +32,7 @@ class GrantFormFactory extends Model
     /**
      * @inheritDoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             ['grant_type', 'required'],

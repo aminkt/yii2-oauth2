@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Traits;
 
@@ -32,7 +33,7 @@ trait UserTrait
                 return null;
             }
             $id = $payload['data']->userId;
-            return self::findOne($id);
+            return self::findUserEntityById($id);
         }
 
         throw new Exception('Invalid auth type. Just HttpBearerAuth is available.');

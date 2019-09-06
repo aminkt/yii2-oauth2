@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Lib;
 
@@ -101,7 +101,7 @@ class JwtToken
                 'jti' => $this->userModel->getId() . '_' . time(), // Json Token Id: an unique identifier for the token
                 'iss' => Yii::$app->getUrlManager()->getHostInfo(),   // Issuer
                 'nbf' => time(),  // Not before
-                'exp' => time() + Oauth2::getInstance()->jwtTokenExpireTimeDuration, // Expire
+                'exp' => date('Y-m-d H:i:s', time() + Oauth2::getInstance()->jwtTokenExpireTimeDuration), // Expire
                 'data' => $this->payloadData
             ];
         }

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Aminkt\Yii2\Oauth2\Forms;
 
@@ -12,11 +13,18 @@ use Aminkt\Yii2\Oauth2\Oauth2;
  *
  * @author Amin Keshavarz <ak_1596@yahoo.com>
  *
+ * @property string $grant_type
+ * @property string $scope
+ * @property string $client_id
+ * @property string $client_secret
+ *
  * @property null|UserModelInterface         $user
  * @property null|RefreshTokenModelInterface $token
  */
 class RefreshTokenGrantForm extends GrantForm
 {
+    const SCENARIO_REVOKE_TOKEN = 'revoke_token';
+
     public $refresh_token;
     public $user_id;
 
@@ -29,13 +37,22 @@ class RefreshTokenGrantForm extends GrantForm
     /**
      * {@inheritdoc}
      */
-    public function rules()
+    public function rules(): array
     {
         return array_merge(parent::rules(), [
-            // username and password are both required
             [['refresh_token', 'user_id'], 'required'],
             [['refresh_token', 'user_id'], 'trim'],
             [['refresh_token'], 'validateToken']
+        ]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function scenarios()
+    {
+        return array_merge(parent::scenarios(), [
+            self::SCENARIO_REVOKE_TOKEN => ['refresh_token', 'user_id']
         ]);
     }
 
@@ -70,7 +87,7 @@ class RefreshTokenGrantForm extends GrantForm
         if ($this->_token === null) {
             /** @var RefreshTokenModelInterface $model */
             $model = Oauth2::getInstance()->refreshTokenModelClass;
-            $this->_token = $model::findRefreshToken($this->user_id, $this->refresh_token);
+            $this->_token = $model::findRefreshToken((int) $this->user_id, $this->refresh_token);
         }
 
         return $this->_token;
