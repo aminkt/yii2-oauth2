@@ -74,7 +74,7 @@ class UserCredentialsGrantForm extends GrantForm
             $refreshToken = $user->generateRefreshToken($this->client);
             return [
                 'token_type' => 'Bearer',
-                'expires_in' => $accessToken->getJwtPayload()['exp'],
+                'expires_in' => date('Y-m-d H:i:s', $accessToken->getJwtPayload()['exp']),
                 'access_token' => $accessToken->getJwtToken(),
                 'refresh_token' => $refreshToken->getToken(),
             ];

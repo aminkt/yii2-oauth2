@@ -142,7 +142,7 @@ class RefreshTokenGrantForm extends GrantForm
             return [
                 'token_type' => 'Bearer',
                 'access_token' => $accessToken->getJwtToken(),
-                'expire_in' => $accessToken->getJwtPayload()['exp'],
+                'expire_in' => date('Y-m-d H:i:s', $accessToken->getJwtPayload()['exp']),
                 'refresh_token' => $refreshToken->getToken()
             ];
         }

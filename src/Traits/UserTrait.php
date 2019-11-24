@@ -30,10 +30,10 @@ trait UserTrait
             try {
                 $payload = Oauth2::getInstance()->decryptJwtToken($token);
             } catch (ForbiddenHttpException|UnauthorizedHttpException $e) {
-                return null;
+                throw new ForbiddenHttpException($e->getMessage());
             }
             $id = $payload['data']->userId;
-            return self::findUserEntityById($id);
+            return self::findIdentity($id);
         }
 
         throw new Exception('Invalid auth type. Just HttpBearerAuth is available.');
