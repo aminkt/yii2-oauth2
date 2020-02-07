@@ -64,7 +64,7 @@ abstract class GrantForm extends Model
     /**
      * Return client object.
      *
-     * @return \Aminkt\Yii2\Oauth2\Interfaces\ClientModelInterface
+     * @return ClientModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
