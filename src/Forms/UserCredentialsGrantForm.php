@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Aminkt\Yii2\Oauth2\Forms;
 
 use aminkt\yii2\oauth2\interfaces\RefreshTokenModelInterface;
+use Aminkt\Yii2\Oauth2\Interfaces\UserCredentialInterface;
 use aminkt\yii2\oauth2\interfaces\UserModelInterface;
 use Aminkt\Yii2\Oauth2\Oauth2;
 
@@ -21,12 +22,11 @@ use Aminkt\Yii2\Oauth2\Oauth2;
  * @property null|UserModelInterface         $user
  * @property null|RefreshTokenModelInterface $token
  */
-class UserCredentialsGrantForm extends GrantForm
+class UserCredentialsGrantForm extends AbstractUserAccessTokenGrantForm
 {
-    public $username;
     public $password;
 
-    /** @var UserModelInterface|null $_user */
+    /** @var UserCredentialInterface|null $_user */
     private $_user;
 
     /**
@@ -36,8 +36,8 @@ class UserCredentialsGrantForm extends GrantForm
     {
         return array_merge(parent::rules(), [
             // username and password are both required
-            [['username', 'password'], 'required'],
-            [['username', 'password'], 'trim'],
+            [['password'], 'required'],
+            [['password'], 'trim'],
             [['password'], 'validatePassword']
         ]);
     }
@@ -56,48 +56,5 @@ class UserCredentialsGrantForm extends GrantForm
                 $this->addError($attribute, 'User credential is not valid.');
             }
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAccessToken(): ?array
-    {
-        if (!$this->validate()) {
-            return null;
-        }
-
-        $user = $this->getUser();
-
-        if ($user) {
-            $accessToken = $user->generateAccessToken();
-            $refreshToken = $user->generateRefreshToken($this->client);
-            return [
-                'token_type' => 'Bearer',
-                'expires_in' => date('Y-m-d H:i:s', $accessToken->getJwtPayload()['exp']),
-                'access_token' => $accessToken->getJwtToken(),
-                'refresh_token' => $refreshToken->getToken(),
-            ];
-        }
-
-        return null;
-    }
-
-    /**
-     * Return user from RefreshToken model.
-     *
-     * @return UserModelInterface|null
-     *
-     * @author Amin Keshavarz <ak_1596@yahoo.com>
-     */
-    protected function getUser(): ?UserModelInterface
-    {
-        if ($this->_user === null) {
-            /** @var UserModelInterface $userClass */
-            $userClass = Oauth2::getInstance()->userModelClass;
-            $this->_user = $userClass::findUserByUsername($this->username);
-        }
-
-        return $this->_user;
     }
 }

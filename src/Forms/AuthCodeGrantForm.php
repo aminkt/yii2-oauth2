@@ -21,12 +21,11 @@ use Aminkt\Yii2\Oauth2\Oauth2;
  * @property null|UserModelInterface         $user
  * @property null|RefreshTokenModelInterface $token
  */
-class AuthCodeGrantForm extends GrantForm
+class AuthCodeGrantForm extends AbstractUserAccessTokenGrantForm
 {
-    public $username;
+    const SCENARIO_SEND_CODE = 'send_code';
 
-    /** @var UserModelInterface|null $_user */
-    private $_user;
+    public $code;
 
     /**
      * {@inheritdoc}
@@ -34,10 +33,19 @@ class AuthCodeGrantForm extends GrantForm
     public function rules(): array
     {
         return array_merge(parent::rules(), [
-            // username and password are both required
-            [['username', 'code'], 'required'],
-            [['username', 'password'], 'trim'],
-            [['password'], 'validatePassword']
+            [['code'], 'required', 'on' => self::SCENARIO_DEFAULT],
+            [['code'], 'trim'],
+            [['code'], 'validateCode', 'on' => self::SCENARIO_DEFAULT],
+        ]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function scenarios()
+    {
+        return array_merge(parent::scenarios(), [
+            self::SCENARIO_SEND_CODE => ['username']
         ]);
     }
 
@@ -49,54 +57,6 @@ class AuthCodeGrantForm extends GrantForm
      */
     public function validateCode($attribute)
     {
-        if (!$this->hasErrors()) {
-            $user = $this->getUser();
-            if (!$user || !$user->validatePassword($this->$attribute)) {
-                $this->addError($attribute, 'Provided auth code is not valid.');
-            }
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAccessToken(): ?array
-    {
-        if (!$this->validate()) {
-            return null;
-        }
-
-        $user = $this->getUser();
-
-        if ($user) {
-            $accessToken = $user->generateAccessToken();
-            $refreshToken = $user->generateRefreshToken($this->client);
-            return [
-                'token_type' => 'Bearer',
-                'expires_in' => date('Y-m-d H:i:s', $accessToken->getJwtPayload()['exp']),
-                'access_token' => $accessToken->getJwtToken(),
-                'refresh_token' => $refreshToken->getToken(),
-            ];
-        }
-
-        return null;
-    }
-
-    /**
-     * Return user from RefreshToken model.
-     *
-     * @return UserModelInterface|null
-     *
-     * @author Amin Keshavarz <ak_1596@yahoo.com>
-     */
-    protected function getUser(): ?UserModelInterface
-    {
-        if ($this->_user === null) {
-            /** @var UserModelInterface $userClass */
-            $userClass = Oauth2::getInstance()->userModelClass;
-            $this->_user = $userClass::findUserByUsername($this->username);
-        }
-
-        return $this->_user;
+        $this->addError($attribute, 'Validation not implemented for code.');
     }
 }

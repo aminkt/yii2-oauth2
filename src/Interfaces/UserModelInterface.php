@@ -27,9 +27,9 @@ interface UserModelInterface
     /**
      * Generate a new refresh token and return it.
      *
-     * @param \Aminkt\Yii2\Oauth2\Interfaces\ClientModelInterface|null $client
+     * @param ClientModelInterface|null   $client
      *
-     * @return \aminkt\yii2\oauth2\interfaces\RefreshTokenModelInterface
+     * @return RefreshTokenModelInterface
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
@@ -49,22 +49,11 @@ interface UserModelInterface
      *
      * @param string $username
      *
-     * @return \Aminkt\Yii2\Oauth2\Interfaces\UserModelInterface|null
+     * @return UserModelInterface|null
      *
      * @author Amin Keshavarz <ak_1596@yahoo.com>
      */
     public static function findUserByUsername(string $username): ?UserModelInterface;
-
-    /**
-     * Validate password.
-     *
-     * @param string $password
-     *
-     * @return bool
-     *
-     * @author Amin Keshavarz <ak_1596@yahoo.com>
-     */
-    public function validatePassword(string $password): bool;
 
     /**
      * Return user entity by id.

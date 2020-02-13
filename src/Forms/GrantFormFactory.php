@@ -18,11 +18,12 @@ use yii\web\BadRequestHttpException;
 class GrantFormFactory extends Model
 {
     const GRANT_TYPE_PASSWORD = 'password';
-    const GRANT_TYPE_AUTH_CODE = 'auth_code';
+    const GRANT_TYPE_OTP_AUTH_CODE = 'otp_auth_code';
     const GRANT_TYPE_REFRESH_TOKEN = 'refresh_token';
     const GRANT_TYPE_ALL = [
         self::GRANT_TYPE_PASSWORD,
-        self::GRANT_TYPE_REFRESH_TOKEN
+        self::GRANT_TYPE_REFRESH_TOKEN,
+        self::GRANT_TYPE_OTP_AUTH_CODE
     ];
 
     public $grant_type;
@@ -70,8 +71,8 @@ class GrantFormFactory extends Model
                 case self::GRANT_TYPE_REFRESH_TOKEN:
                     $grantForm = new RefreshTokenGrantForm();
                     break;
-                case self::GRANT_TYPE_AUTH_CODE:
-                    $grantForm = new AuthCodeGrantForm();
+                case self::GRANT_TYPE_OTP_AUTH_CODE:
+                    $grantForm = new OTPCodeGrantForm();
                     break;
                 default:
                     throw new RuntimeException('Can not find related GrantForm');
