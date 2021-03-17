@@ -81,6 +81,10 @@ class GrantFormFactory extends Model
             if (!$grantForm->load($this->_formData, $this->_formName)) {
                 throw new BadRequestHttpException("Can't load Grant form.");
             }
+            
+            if (is_string($grantForm->scope)) {
+                $grantForm->scope = explode(' ', $grantForm->scope);
+            }
 
             return $grantForm;
         }
